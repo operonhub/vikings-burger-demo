@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vikings Burger — Central de Pedidos (demo)</title>
+<meta name="description" content="Demo conceptual de una central de pedidos para Vikings Burger: el cliente pide con cupo por franja y la cocina y el reparto ven la misma cola.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/logo-ig.jpg">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ==================================================== BARRA SUPERIOR -->
+<header class="barra">
+  <div class="barra__fila">
+    <div class="marca">
+      <img class="marca__logo" src="assets/logo-ig.jpg" alt="Logo de Vikings Burger" width="34" height="34">
+      <span class="marca__txt">
+        <span class="marca__nombre">Vikings Burger</span>
+        <span class="marca__sub">Central de pedidos</span>
+      </span>
+    </div>
+    <span class="sello-demo">Demo conceptual</span>
+  </div>
+
+  <div class="modos" role="group" aria-label="Elegir qué pantalla mirar">
+    <button class="modos__b" type="button" id="modo-central" data-modo="central" aria-pressed="true">
+      <b>Central de pedidos</b>
+      <span>Lo que ven el dueño y el reparto</span>
+    </button>
+    <button class="modos__b" type="button" id="modo-cliente" data-modo="cliente" aria-pressed="false">
+      <b>Cliente hace el pedido</b>
+      <span>Lo que ve quien pide</span>
+    </button>
+  </div>
+
+  <!-- Controles que existen sólo para poder mostrar la demo. No son producto. -->
+  <div class="tira-demo">
+    <span class="tira-demo__et">Demo</span>
+    <button class="b b--ch b--fantasma" type="button" data-escenario="normal">Cola normal</button>
+    <button class="b b--ch b--fantasma" type="button" data-escenario="pico">Noche pico</button>
+    <button class="b b--ch b--fantasma" type="button" data-escenario="vacio">Vaciar tablero</button>
+    <button class="b b--ch b--peligro" type="button" id="reset">Restablecer demo</button>
+  </div>
+</header>
+
+<!-- ================================================== MODO: CENTRAL -->
+<main class="capa" id="vista-central">
+
+  <!-- Control de noche -->
+  <section class="control" aria-labelledby="tit-control">
+    <div class="control__cab">
+      <h2 id="tit-control">Control de noche</h2>
+      <small id="control-sub"></small>
+    </div>
+
+    <div class="control__cifras" id="control-cifras"></div>
+
+    <div class="control__acciones">
+      <label class="sw">
+        <input type="checkbox" id="pausar">
+        <span class="sw__pista"></span>
+        <span class="sw__et">Pausar nuevos pedidos</span>
+      </label>
+      <button class="b b--ch" type="button" id="mas-demora">Extender demora +10 min</button>
+      <button class="b b--ch b--fantasma" type="button" id="menos-demora">−10 min</button>
+    </div>
+
+    <div class="franjas">
+      <div class="franjas__cab">
+        <h3>Cupos por franja</h3>
+        <span>Tocá una franja para abrirla o cerrarla</span>
+      </div>
+      <div class="franjas__lista" id="franjas" role="group" aria-label="Cupos por franja de entrega"></div>
+    </div>
+  </section>
+
+  <div class="avisos" id="avisos" aria-live="polite"></div>
+
+  <p class="valor">
+    <span class="rombos" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span><strong>No se pierde ningún pedido.</strong> Cocina y reparto ven la misma cola.</span>
+  </p>
+
+  <!-- Tabs sólo en móvil -->
+  <div class="tabs" id="tabs" role="tablist" aria-label="Zonas del tablero"></div>
+
+  <div class="tablero" id="tablero">
+    <section class="col" data-col="nuevos" role="tabpanel" aria-labelledby="tab-nuevos">
+      <header class="col__cab">
+        <span class="col__n" aria-hidden="true">1</span>
+        <h2>Nuevos pedidos</h2>
+        <span class="col__cuenta" data-cuenta="nuevos"></span>
+      </header>
+      <div class="col__lista" id="col-nuevos"></div>
+    </section>
+
+    <section class="col" data-col="cocina" role="tabpanel" aria-labelledby="tab-cocina" hidden>
+      <header class="col__cab">
+        <span class="col__n" aria-hidden="true">2</span>
+        <h2>Cocina</h2>
+        <span class="col__cuenta" data-cuenta="cocina"></span>
+      </header>
+      <div class="col__lista" id="col-cocina"></div>
+    </section>
+
+    <section class="col" data-col="reparto" role="tabpanel" aria-labelledby="tab-reparto" hidden>
+      <header class="col__cab">
+        <span class="col__n" aria-hidden="true">3</span>
+        <h2>Reparto</h2>
+        <span class="col__cuenta" data-cuenta="reparto"></span>
+      </header>
+      <div id="vuelta"></div>
+      <div class="col__lista" id="col-reparto"></div>
+    </section>
+  </div>
+
+  <section class="entregados" id="entregados"></section>
+
+  <footer class="pie" id="pie-central"></footer>
+</main>
+
+<!-- ================================================== MODO: CLIENTE -->
+<main class="capa oculto" id="vista-cliente">
+
+  <section class="hero">
+    <img class="hero__foto" src="assets/hero-burger.jpg" alt="" aria-hidden="true">
+    <div class="hero__txt">
+      <h1 class="hero__marca">Vikings<br>Burger</h1>
+      <p class="hero__lema">Sabor · Fuerza · Leyenda</p>
+      <p class="hero__cap">Pedidos ordenados. Entregas según cupo disponible.</p>
+      <p id="hero-estado"></p>
+    </div>
+  </section>
+
+  <div class="cliente">
+    <div class="cliente__menu">
+      <div id="cli-cartel"></div>
+
+      <p class="dato-local">
+        <span class="rombos" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span><b>Todas las hamburguesas vienen con papas fritas.</b>
+        Jueves a domingo, de 19:00 a 23:00.</span>
+      </p>
+
+      <nav class="catnav" id="catnav" role="tablist" aria-label="Categorías del menú"></nav>
+      <div id="cli-menu"></div>
+
+      <footer class="pie" id="pie-cliente"></footer>
+    </div>
+
+    <!-- Un solo panel de pedido: hoja en móvil, columna fija en escritorio -->
+    <aside class="hoja" id="hoja" aria-label="Tu pedido">
+      <div class="hoja__cab">
+        <h2 id="hoja-titulo">Tu pedido</h2>
+        <button class="hoja__x" type="button" id="cerrar-hoja" aria-label="Volver al menú">✕</button>
+      </div>
+      <div class="pasos" id="pasos"></div>
+      <div class="hoja__cuerpo" id="hoja-cuerpo"></div>
+      <div class="hoja__pie" id="hoja-pie"></div>
+    </aside>
+  </div>
+
+  <div class="barra-carrito" id="barra-carrito"></div>
+</main>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/central.js"></script>
+<script src="js/cliente.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
